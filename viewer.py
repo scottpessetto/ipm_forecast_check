@@ -75,7 +75,17 @@ def filter_data(df, entity, date_range) -> pd.DataFrame:
     return df
 
 
-def plot_stacked_area(df, rate_stream):
+def plot_stacked_area(df: pd.DataFrame, rate_stream: str) -> alt.Chart:
+    """
+    Creates a stacked area chart for the specified rate stream.
+
+    Args:
+    df (pd.DataFrame): The csv loaded as a dataframe with wells and forecasts.
+    rate_stream (str): Oil Rate, Form Gas Rate, or Water Rate
+
+    Returns:
+    alt.Chart: The Altair chart object.
+    """
     if df.empty:
         return None
     chart = (
