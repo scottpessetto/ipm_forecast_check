@@ -15,7 +15,8 @@ def process_well_data(excel_file: str) -> pd.DataFrame:
         pd.DataFrame: The forecast DataFrame with an additional 'Date' column containing the calculated dates for
         each month of the forecast.
 
-    This function loads data from two sheets in the specified Excel file: 'start_dates' and 'forecast'.
+    This function loads data from two sheets in the forecast file: 'start_dates' and 'forecast'.
+    The start_dates is sheet with each well and its production start date.
     It maps well names to their respective start dates, calculates new dates by adding a month offset to these start dates,
     and appends these dates to the 'forecast' DataFrame.
     """
@@ -32,7 +33,7 @@ def process_well_data(excel_file: str) -> pd.DataFrame:
     print("Creating start dict")
     start_date_dict = dict(zip(start_dates_sheet["Entity"], start_dates_sheet["Start Date"]))
 
-    # Initialize a new 'Date' column in forecast_sheet with NaN or a similar placeholder
+    # Initialize a new 'Date' column in forecast_sheet with NaN 
     forecast_sheet["Date"] = pd.NaT
 
     # Process the forecast data
