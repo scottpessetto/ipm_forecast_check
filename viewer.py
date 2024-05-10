@@ -29,6 +29,8 @@ df = load_data()
 default_entity = sorted(df["Entity"].unique())  # Sort the entity list alphabetically
 default_entity_selection = [default_entity[0]] if default_entity else []
 
+unique_letters = sorted({entity[0].upper() for entity in df["Entity"].unique()})
+selected_letter = st.sidebar.multiselect("Select the starting letter of the Entity:", unique_letters)
 
 # default_start_date = df["Date"].min()
 # default_end_date = default_start_date + timedelta(days=1000)
@@ -53,7 +55,7 @@ likelihood = st.sidebar.multiselect("Select Likelihood", options=df["Likelihood"
 
 
 # Function to filter data based on selection
-def filter_data(df, entity, date_range) -> pd.DataFrame:
+def filter_data(df: pd.DataFrame, entity: list, date_range, selected_letter) -> pd.DataFrame:
     """
     Filters the data based on the selected entity, date range, and likelihood.
 
@@ -66,6 +68,10 @@ def filter_data(df, entity, date_range) -> pd.DataFrame:
     Returns:
     pd.DataFrame: The filtered DataFrame.
     """
+    if selected_letter:  # Check if there is at least one letter selected
+        # Use any() to check if any of the selected letters match the start of the entity names
+        mask = df["Entity"].apply(lambda x: any(x.startswith(letter) for letter in selected_letter))
+        df = df[mask]
     if entity:
         df = df[df["Entity"].isin(entity)]
     if not date_range.empty:
@@ -92,10 +98,10 @@ def plot_stacked_area(df: pd.DataFrame, rate_stream: str) -> alt.Chart:
         alt.Chart(df)
         .mark_area()
         .encode(
-            x="Date:T",
+            x=alt.X("Date:T", axis=alt.Axis(format="%Y")),
             y=alt.Y(f"{rate_stream}:Q", stack=True),
             color="Entity:N",
-            tooltip=["Entity", rate_stream, "Date"],
+            tooltip=["Entity", "Date", "Oil Rate", "Water Rate", "Form Gas Rate"],
         )
         .interactive()
         .properties(width=2500, height=1000)
@@ -103,7 +109,7 @@ def plot_stacked_area(df: pd.DataFrame, rate_stream: str) -> alt.Chart:
     return chart
 
 
-filtered_df = filter_data(df, entity, date_range)
+filtered_df = filter_data(df, entity, date_range, selected_letter)
 
 
 if not filtered_df.empty:
